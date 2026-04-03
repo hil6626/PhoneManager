@@ -4,12 +4,8 @@
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[
-        ('venv/lib/python3.12/site-packages/PyQt5/Qt5/plugins/platforms', 'PyQt5/Qt5/plugins/platforms'),
-        ('venv/lib/python3.12/site-packages/PyQt5/Qt5/plugins/imageformats', 'PyQt5/Qt5/plugins/imageformats'),
-        ('venv/lib/python3.12/site-packages/PyQt5/Qt5/plugins/platformthemes', 'PyQt5/Qt5/plugins/platformthemes'),
-        ('venv/lib/python3.12/site-packages/PyQt5/Qt5/plugins/iconengines', 'PyQt5/Qt5/plugins/iconengines'),
-    ],
+    binaries=[],
+
     datas=[
         ('resources/', 'resources/'),
         ('config/', 'config/'),
@@ -22,6 +18,9 @@ a = Analysis(
         'pandas',
         'openpyxl',
         'sqlite3',
+        'numpy._core._exceptions',
+        'numpy.core._exceptions',
+        'numpy',
     ],
     hookspath=[],
     hooksconfig={},
@@ -44,7 +43,7 @@ exe = EXE(
     strip=False,
     upx=True,
     upx_exclude=[],
-    runtime_tmpdir=None,
+    runtime_tmpdir='/tmp',
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
