@@ -78,7 +78,7 @@ Phase1-5 verified (core modules/GUI/DB ready). Legacy conflicts merged/removed. 
 
 ---
 
-## 7. Phase7: Git Release & EXE Prod (Tracking: Phase7_track.md)
+## 7. Phase7完成 (Phase7_complete_track.md)
 ### Status: Docs Ready (1/5)
 **要点**: git push → GHA tox pass → pyinstaller --onefile → dist/main.exe分发。
 
