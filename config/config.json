@@ -1,0 +1,17 @@
+{
+  "database": {
+    "path": "database/data.db",
+    "pragma_foreign_keys": true
+  },
+  "logging": {
+    "level": "INFO",
+    "path": "logs/app.log",
+    "max_size_mb": 10,
+    "backup_count": 5
+  },
+  "app": {
+    "title": "PhoneManager - 号码管理系统",
+    "version": "1.0.0",
+    "icon": "resources/icons/app.ico"
+  }
+}
