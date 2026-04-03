@@ -2,31 +2,27 @@
 # -*- coding: utf-8 -*-
 """
 PhoneManager 主入口 (GUI启动)
-参考 docs/01-05: 加载config, 启动主窗口, import modules/ui
-职责: 单一入口, 异常捕获, 日志初始化 (<200行), 批量导入 + 查询按钮
+v1.1: +批量分配按钮
 """
 
 import sys
 import json
 import logging
 from pathlib import Path
-from PyQt5.QtWidgets import (QApplication, QMessageBox, QWidget, QVBoxLayout, QLabel, 
-                             QPushButton, QFileDialog)
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog)
 from PyQt5.QtCore import Qt
 from modules.recorder import Recorder
 from modules.query import Query
+from modules.assigner import Assigner
 
 def load_config(config_path: str = 'config/config.json') -> dict:
-    """加载配置, 必填检查"""
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-        return config
+            return json.load(f)
     except FileNotFoundError:
         raise ValueError(f"配置缺失: {config_path}")
 
 def setup_logging(config: dict):
-    """日志setup"""
     log_config = config['logging']
     Path(log_config['path']).parent.mkdir(exist_ok=True)
     logging.basicConfig(
@@ -45,64 +41,70 @@ def main():
     try:
         config = load_config()
         setup_logging(config)
-        logging.info("PhoneManager 启动 (批量导入 + 查询 ready)")
+        logging.info("PhoneManager v1.1 启动 (导入/查询/分配)")
         
         window = QWidget()
         window.setWindowTitle(config['app']['title'])
         layout = QVBoxLayout()
         
-        label = QLabel("PhoneManager v1.0 - 批量电话管理\\n批量导入/查询号码按钮测试")
+        label = QLabel("PhoneManager v1.1 - 号码管理系统\\n导入/查询/分配全功能")
         label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("font-size: 16px; color: blue;")
+        label.setStyleSheet("font-size: 16px; color: blue; padding: 10px;")
         layout.addWidget(label)
         
-        btn_batch = QPushButton("批量导入 (xlsx/csv)")
-        layout.addWidget(btn_batch)
+        btn_import = QPushButton("1. 批量导入号码")
+        layout.addWidget(btn_import)
         
-        btn_query = QPushButton("查询号码 (xlsx/csv)")
+        btn_query = QPushButton("2. 批量查询重复")
         layout.addWidget(btn_query)
         
-        def on_batch_import():
-            file_path, _ = QFileDialog.getOpenFileName(
-                window, "选择号码文件", "", "Excel/CSV (*.xlsx *.csv)"
-            )
+        btn_assign = QPushButton("3. 批量分配 (默认sales)")
+        layout.addWidget(btn_assign)
+        
+        def on_import():
+            file_path, _ = QFileDialog.getOpenFileName(window, "选择导入文件", "", "Excel/CSV (*.xlsx *.csv)")
             if file_path:
                 try:
                     r = Recorder()
                     result = r.add_batch(file_path)
-                    msg = (f"导入完成!\\n"
-                           f"新增: {result.get('new_count', 0)}\\n"
-                           f"重复: {result.get('dup_count', 0)}\\n"
-                           f"重复号码数: {len(result.get('dup_numbers', []))}\\n"
-                           f"文件: {result.get('file', 'N/A')}")
-                    QMessageBox.information(window, "批量结果", msg)
+                    msg = f"导入完成!\\n新增: {result.get('new_count', 0)}\\n重复: {result.get('dup_count', 0)}\\n重复号码: {len(result.get('dup_numbers', []))}\\n文件: {result.get('file', 'N/A')}"
+                    QMessageBox.information(window, "导入结果", msg)
                 except Exception as e:
-                    QMessageBox.warning(window, "错误", f"导入失败: {str(e)}")
+                    QMessageBox.warning(window, "错误", str(e))
         
-        btn_batch.clicked.connect(on_batch_import)
+        btn_import.clicked.connect(on_import)
         
-        def on_query_lookup():
-            file_path, _ = QFileDialog.getOpenFileName(
-                window, "选择查询文件", "", "Excel/CSV (*.xlsx *.csv)"
-            )
+        def on_query():
+            file_path, _ = QFileDialog.getOpenFileName(window, "选择查询文件", "", "Excel/CSV (*.xlsx *.csv)")
             if file_path:
                 try:
                     q = Query()
                     result = q.lookup_batch(file_path)
                     processed = result.get('processed', 0)
                     dups = sum(1 for r in result.get('results', []) if r.get('dup_count', 0) > 0)
-                    msg = (f"查询完成!\\n"
-                           f"处理: {processed}\\n"
-                           f"有记录: {dups}\\n"
-                           f"文件: {result.get('file', 'N/A')}")
+                    msg = f"查询完成!\\n处理: {processed}\\n有记录: {dups}\\n文件: {result.get('file', 'N/A')}"
                     QMessageBox.information(window, "查询结果", msg)
                 except Exception as e:
-                    QMessageBox.warning(window, "错误", f"查询失败: {str(e)}")
+                    QMessageBox.warning(window, "错误", str(e))
         
-        btn_query.clicked.connect(on_query_lookup)
+        btn_query.clicked.connect(on_query)
         
+        def on_assign():
+            file_path, _ = QFileDialog.getOpenFileName(window, "选择分配文件 (number列)", "", "Excel/CSV (*.xlsx *.csv)")
+            if file_path:
+                try:
+                    a = Assigner()
+                    result = a.assign_batch(file_path, 'sales')
+                    msg = f"分配完成!\\n成功: {result.get('success', 0)}\\n失败: {result.get('fail', 0)}\\n文件: {result.get('file', 'N/A')}"
+                    QMessageBox.information(window, "分配结果", msg)
+                except Exception as e:
+                    QMessageBox.warning(window, "错误", str(e))
+        
+        btn_assign.clicked.connect(on_assign)
+        
+        layout.addStretch()
         window.setLayout(layout)
-        window.resize(500, 350)
+        window.resize(500, 450)
         window.show()
         
         sys.exit(app.exec_())
@@ -113,3 +115,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
