@@ -3,10 +3,6 @@
 import pytest
 from modules.query import Query
 
-@pytest.fixture
-def sample_db(temp_db):  # 假设 recorder test 后 db 有数据
-    pass  # 用 recorder fixture 预填数据
-
 def test_lookup_single(sample_db):
     q = Query(sample_db)
     result = q.lookup_single('13800138000')

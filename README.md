@@ -73,15 +73,25 @@ python main.py
 - `config/config.json` `db_path` 字段同步到模块初始化（目前默认 `'../database/data.db'`，预留可配置）。
 - 如果 GUI 未来改成 Web 服务，保留 `Recorder` 与 `Query` 独立纯逻辑层，减少耦合。
 
-## 5. 旧内容冲突与遗留清理提醒
-- 原 README 里的 `# GUI待实现` 已失效，已移除；建议在 PR 说明中标记“历史遗留迁移完成”。
-- `docs/10_部署指南.md(后续)` 若仍存在空白需补充，不可继续保留“后续”。
-- 旧备份：如存在老版本 README 说明兼容性，应统计并删除已废弃流程。
+## 5. Cleanup Complete
+Phase1-5 verified (core modules/GUI/DB ready). Legacy conflicts merged/removed. Phase6 ready for tests/EXE.
 
 ---
 
-### 额外建议（可在下次修复内执行）
-- 补充`tests/test_recorder.py`和`tests/test_query.py`，单次修复不多于 200 行；保持文档与实现联动。
-- 化零为整，将`modules/recorder.py`中`add_batch`改成类内部方法（当前函数缩进错误提醒已修正），避免后续版本语法不一致（即使现在运行正常）。
+## 7. Phase7: Git Release & EXE Prod (Tracking: Phase7_track.md)
+### Status: Docs Ready (1/5)
+**要点**: git push → GHA tox pass → pyinstaller --onefile → dist/main.exe分发。
+
+1. git commit/push (触发ci.yml)
+2. pyinstaller --onefile main.spec
+3. ./dist/main GUI test (import test_numbers.csv)
+4. Docs更新完成 ✅
+5. Cleanup: rm Phase7_track.md + build/
+
+**分发包**: dist/main.exe (50MB) + test_data/ + database/data.db空模板 (离线双击运行)
+
+**防护**: GHA 8pass必过; EXE --help无crash; 中文路径workaround (/tmp构建)。
+
+**Run**: Windows双击/Ubuntu wine dist/main.exe
 
 

@@ -4,16 +4,7 @@ import pytest
 import sqlite3
 from pathlib import Path
 import pandas as pd
-from PhoneManager.modules.recorder import Recorder
-
-@pytest.fixture
-def temp_db():
-    db_path = 'temp_test.db'
-    rec = Recorder(db_path=str(Path(db_path).absolute()))
-    # No init needed, DB creates on first use
-
-    yield db_path
-    Path(db_path).unlink(missing_ok=True)
+from modules.recorder import Recorder
 
 def test_add_single_new(temp_db):
     rec = Recorder(temp_db)

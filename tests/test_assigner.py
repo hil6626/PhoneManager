@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pytest
+import pandas as pd
 from pathlib import Path
 from modules.assigner import Assigner
-
-@pytest.fixture
-def sample_db(temp_db):
-    # Pre-fill with recorder test data
-    pass
 
 def test_assign_single_success(sample_db):
     a = Assigner(db_path=str(Path(sample_db).absolute()))
